@@ -17,161 +17,59 @@
 # table of contents 
 - [pathsfilter](#pathsfilter)
 - [table of contents](#table-of-contents)
-- [Features](#features)
-  - [General](#general)
-  - [Getting started](#getting-started)
-    - [1. install pathsfilter](#1-install-pathsfilter)
-    - [2. env file](#2-env-file)
-    - [3. env parser](#3-env-parser)
-    - [4. load and print env in "./src/index.ts"](#4-load-and-print-env-in-srcindexts)
-    - [5. start](#5-start)
-      - [1. Set environment variables](#1-set-environment-variables)
-      - [2. Allow undefined as value](#2-allow-undefined-as-value)
-      - [3. Set a default value](#3-set-a-default-value)
-- [other functions](#other-functions)
+- [About](#about)
+- [Example](#example)
 - [npm scripts](#npm-scripts)
   - [use](#use)
   - [base scripts](#base-scripts)
   - [watch mode](#watch-mode)
 - [contribution](#contribution)
 
-# Features
+# About
+A library for nodejs to filter paths like a .gitignore, .dockerignore or .npmignore file.
 
-## General
- - Set default (typed) environment varables
- - Define variables types
- - Defined required variables
- - Load and parse variables from process.env
-
-## Getting started
-### 1. install pathsfilter
-```sh
-npm i pathsfilter
-```
-
-### 2. env file
-Create a example environment file at "./src/env/env.ts":
+# Example
 ```ts
-import * as pathsfilter from "pathsfilter"
-export const defaultEnv = {
-    PRODUCTION: (process.env.NODE_ENV === "production") as boolean,
-    VERBOSE: false as boolean,
+import {
+    matchPathSelector,
+    parsePathSelector,
+} from "pathsfilter"
 
-    PORT: 8080 as number,
-    API_KEY: undefined as string,
-    API_URL: undefined as string,
-}
-export const variablesTypes: pathsfilter.VariablesTypes = {
-    PRODUCTION: [pathsfilter.TC_BOOLEAN],
-    VERBOSE: [pathsfilter.TC_BOOLEAN],
-
-    PORT: [pathsfilter.TC_NUMBER],
-    API_KEY: [pathsfilter.TC_STRING],
-    API_URL: [pathsfilter.TC_STRING],
-}
-``` 
-
-### 3. env parser
-Create a example environment parser file at "./src/env/envParser.ts":
-```ts
-import { parseEnv } from "pathsfilter"
-import { defaultEnv, variablesTypes } from "./env"
-
-export const env = parseEnv(defaultEnv, variablesTypes)
-  .setProcessEnv()
-  .errExit()
-  .env
-export default env
-
-if (!env.PRODUCTION) {
-    process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0"
-}
-```
-
-### 4. load and print env in "./src/index.ts"
-```ts
-import env from "./env/envParser"
-
-console.log("parser env: ", {
-  prod: env.PRODUCTION,
-  v: env.VERBOSE,
-  port: env.PORT,
-  key: env.API_KEY,
-  url: env.API_URL,
-})
-
-console.log("process env: ", {
-  prod: process.env.PRODUCTION,
-  v: process.env.VERBOSE,
-  port: process.env.PORT,
-  key: process.env.API_KEY,
-  url: process.env.API_URL,
-})
-```
-
-### 5. start
-If you run the index.js after compile the app throws an error.
-This is because in the "env.ts" there is no default value provided for "API_KEY" and "API_URL".
-
-There are 3 options to remove this error:
-#### 1. Set environment variables
-```sh
-export API_KEY="qwertzui"
-export API_URL="https://api.github.io/v2/repo/majo418/testrepo"
-```
-#### 2. Allow undefined as value
-Allow undefined as environment variable value in env.ts
-```ts
-export const variablesTypes: pathsfilter.VariablesTypes = {
-    PRODUCTION: [pathsfilter.TC_BOOLEAN],
-    VERBOSE: [pathsfilter.TC_BOOLEAN],
-
-    PORT: [pathsfilter.TC_NUMBER],
-    API_KEY: [pathsfilter.TC_STRING, pathsfilter.TC_UNDEFINED], // <---
-    API_URL: [pathsfilter.TC_STRING, pathsfilter.TC_UNDEFINED], // <---
-}
-```
-#### 3. Set a default value
-Allow undefined as environment variable value in env.ts
-```ts
-export const defaultEnv = {
-    PRODUCTION: (process.env.NODE_ENV === "production") as boolean,
-    VERBOSE: false as boolean,
-
-    PORT: 8080 as number,
-    API_KEY: "myDEfaultAPIkey" as string,
-    API_URL: "https://api.cloudflare.com/v1/dns" as string,
-}
-```
-
-# other functions
-By using the `parseEnv()` function tou get a `EnvResult<T>`.
-Here are all function of the Environment Result:
-```ts
-export interface EnvResult<T> {
-  // Overwrite default values
-  overwriteEnv(
-    env: { [key: string]: any }
-  ): EnvResult<T>
-  // Set value if its missing in default values
-  setMissingEnv(
-    env: { [key: string]: any }
-  ): EnvResult<T>
-  // Put all env value as strings into process.env
-  setProcessEnv(): EnvResult<T>
-  // Clear all env values from process.env
-  clearProcessEnv(
-    justEqualValues: boolean = true
-  ): EnvResult<T>
-  // Print env errors to console
-  errPrint(): EnvResult<T> 
-  // Throw env errors
-  errThrow(): EnvResult<T>
-  // Exit on error
-  errExit(
-    exitCode: number = 1
-  ): EnvResult<T> | never
-}
+const pathSelectorScript = parsePathSelector(`
+    *
+    !test/*
+    test/logs/*
+    !**/keep
+    **/nkeep
+`)
+const toFilter = [
+    "qwe",
+    "znhghngh.test",
+    "keep",
+    "nkeep",
+    "test.asdd",
+    "test/asdasd",
+    "test/znhghngh.test",
+    "test/test.asdd",
+    "test/keep",
+    "test/nkeep",
+    "test/logs/asdasd",
+    "test/logs/znhghngh.test",
+    "test/logs/test.asdd",
+    "test/logs/keep",
+    "test/logs/nkeep",
+]
+const result = toFilter.filter((v) => !matchPathSelector(v, pathSelectorScript))
+/*
+result = [
+  "keep",
+  "test/asdasd",
+  "test/znhghngh.test",
+  "test/test.asdd",
+  "test/keep",
+  "test/logs/keep",
+]
+*/
 ```
 
 # npm scripts

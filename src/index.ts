@@ -89,7 +89,7 @@ export const defaultExtendedDirScanSettings: ExtendedDirScanSettings = {
 
 export async function extendedDirScan(
     path: string,
-    options: ExtendedDirScanOptions
+    options?: ExtendedDirScanOptions
 ): Promise<RecursivePathStat> {
     const settings: ExtendedDirScanSettings = {
         ...defaultExtendedDirScanSettings,

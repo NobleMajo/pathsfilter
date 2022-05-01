@@ -11,6 +11,58 @@ import {
 import exp = require("constants")
 
 describe('Test pathsfilter base functions', () => {
+    it("simple test", async () => {
+        const pathSelectorScript = parsePathSelector(`
+            *
+            !test/*
+            test/logs/*
+            !**/keep
+            **/nkeep
+        `)
+        const toFilter = [
+            "qwe",
+            "znhghngh.test",
+            "keep",
+            "nkeep",
+            "test.asdd",
+            "test/asdasd",
+            "test/znhghngh.test",
+            "test/test.asdd",
+            "test/keep",
+            "test/nkeep",
+            "test/logs/asdasd",
+            "test/logs/znhghngh.test",
+            "test/logs/test.asdd",
+            "test/logs/keep",
+            "test/logs/nkeep",
+        ]
+
+        const result = toFilter.filter(
+            (v) => !matchPathSelector(
+                v,
+                pathSelectorScript,
+                false
+            )
+        )
+        expect(
+            JSON.stringify(
+                result,
+                null, 4
+            )
+        ).is.equals(
+            JSON.stringify(
+                [
+                    "keep",
+                    "test/asdasd",
+                    "test/znhghngh.test",
+                    "test/test.asdd",
+                    "test/keep",
+                    "test/logs/keep",
+                ],
+                null, 4
+            )
+        )
+    })
     it("match PathShape tests", () => {
         let tsPattern: PathShape =
             ["test", "typescript", "src", "index.ts"]
