@@ -6,9 +6,6 @@
   "author": "majo418",
   "license": "MIT",
   "private": false,
-  "publishConfig": {
-    "access": "public"
-  },
   "keywords": [
     "typescript",
     "lib",
