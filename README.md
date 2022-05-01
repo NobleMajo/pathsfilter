@@ -12,8 +12,6 @@
 ![](https://img.shields.io/badge/dynamic/json?color=navy&label=forks&query=forks&suffix=x&url=https%3A%2F%2Fapi.github.com%2Frepos%2Fmajo418%2Fpathsfilter)
 ![](https://img.shields.io/badge/dynamic/json?color=darkred&label=open%20issues&query=open_issues&suffix=x&url=https%3A%2F%2Fapi.github.com%2Frepos%2Fmajo418%2Fpathsfilter)
 
-"pathsfilter" is a environment managment library 
-
 # table of contents 
 - [pathsfilter](#pathsfilter)
 - [table of contents](#table-of-contents)
