@@ -57,8 +57,10 @@ const toFilter = [
     "test/logs/keep",
     "test/logs/nkeep",
 ]
-const result = toFilter.filter((v) => !matchPathSelector(v, pathSelectorScript))
-/*
+const result = toFilter.filter(
+    (v) => !matchPathSelector(v, pathSelectorScript)
+)
+/* this is the result:
 result = [
   "keep",
   "test/asdasd",

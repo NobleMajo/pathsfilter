@@ -1,7 +1,7 @@
 import { promises as fs } from "fs"
 import * as path from "path"
 
-export let cwd: string = ""
+export let cwd: string
 if (
     typeof process == "object" &&
     typeof process.cwd == "function"
@@ -11,7 +11,10 @@ if (
     } catch (err) {
     }
 }
-if (cwd.length <= 0) {
+if (
+    typeof cwd != "string" ||
+    cwd.length <= 0
+) {
     cwd = "/"
 }
 
