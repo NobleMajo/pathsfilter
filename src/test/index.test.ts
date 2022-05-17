@@ -8,7 +8,880 @@ import {
     PathSelector,
     matchPathShape
 } from "../index"
-import exp = require("constants")
+
+describe('Test matchPathShape single function', () => {
+    it("test '*' shape", async () => {
+        const shape = "*"
+        expect(
+            matchPathShape(
+                "pachage.json",
+                shape.split("/") as any,
+            )
+        ).is.true
+        expect(
+            matchPathShape(
+                "test/pachage.json",
+                shape.split("/") as any,
+            )
+        ).is.true
+        expect(
+            matchPathShape(
+                "old/deep/nested/folder/here/pachage.json",
+                shape.split("/") as any,
+            )
+        ).is.true
+        expect(
+            matchPathShape(
+                "wow.asdasd.asdasdasd.asdad",
+                shape.split("/") as any,
+            )
+        ).is.true
+        expect(
+            matchPathShape(
+                "test/wow.asdasd.asdasdasd.asdad",
+                shape.split("/") as any,
+            )
+        ).is.true
+        expect(
+            matchPathShape(
+                "old/deep/nested/folder/here/wow.asdasd.asdasdasd.asdad",
+                shape.split("/") as any,
+            )
+        ).is.true
+        expect(
+            matchPathShape(
+                "d.asdasdasd.asdad/wow.asdasd.asdas/nested/asdasdkjasdlkajsdalkdjakskllka/here/wow.asdasd.asdasdasd.asdad",
+                shape.split("/") as any,
+            )
+        ).is.true
+    })
+
+    it("test 'test/*' shape", async () => {
+        const shape = "test/*"
+        expect(
+            matchPathShape(
+                "pachage.json",
+                shape.split("/") as any,
+            )
+        ).is.false
+        expect(
+            matchPathShape(
+                "test/pachage.json",
+                shape.split("/") as any,
+            )
+        ).is.true
+        expect(
+            matchPathShape(
+                "old/deep/nested/folder/here/pachage.json",
+                shape.split("/") as any,
+            )
+        ).is.false
+        expect(
+            matchPathShape(
+                "wow.asdasd.asdasdasd.asdad",
+                shape.split("/") as any,
+            )
+        ).is.false
+        expect(
+            matchPathShape(
+                "test/wow.asdasd.asdasdasd.asdad",
+                shape.split("/") as any,
+            )
+        ).is.true
+        expect(
+            matchPathShape(
+                "old/deep/nested/folder/here/wow.asdasd.asdasdasd.asdad",
+                shape.split("/") as any,
+            )
+        ).is.false
+        expect(
+            matchPathShape(
+                "d.asdasdasd.asdad/wow.asdasd.asdas/nested/asdasdkjasdlkajsdalkdjakskllka/here/wow.asdasd.asdasdasd.asdad",
+                shape.split("/") as any,
+            )
+        ).is.false
+    })
+
+    it("test 'test/*/no.sh' shape", async () => {
+        const shape = "test/*/no.sh"
+        expect(
+            matchPathShape(
+                "pachage.json",
+                shape.split("/") as any,
+            )
+        ).is.false
+        expect(
+            matchPathShape(
+                "test/pachage.json",
+                shape.split("/") as any,
+            )
+        ).is.false
+        expect(
+            matchPathShape(
+                "old/deep/nested/folder/here/pachage.json",
+                shape.split("/") as any,
+            )
+        ).is.false
+        expect(
+            matchPathShape(
+                "wow.asdasd.asdasdasd.asdad",
+                shape.split("/") as any,
+            )
+        ).is.false
+        expect(
+            matchPathShape(
+                "test/wow.asdasd.asdasdasd.asdad",
+                shape.split("/") as any,
+            )
+        ).is.false
+        expect(
+            matchPathShape(
+                "old/deep/nested/folder/here/wow.asdasd.asdasdasd.asdad",
+                shape.split("/") as any,
+            )
+        ).is.false
+        expect(
+            matchPathShape(
+                "d.asdasdasd.asdad/wow.asdasd.asdas/nested/asdasdkjasdlkajsdalkdjakskllka/here/wow.asdasd.asdasdasd.asdad",
+                shape.split("/") as any,
+            )
+        ).is.false
+        expect(
+            matchPathShape(
+                "d.asdasdasd.asdad/wow.asdasd.asdas/nested/asdasdkjasdlkajsdalkdjakskllka/here/wow.asdasd.asdasdasd.asdad",
+                shape.split("/") as any,
+            )
+        ).is.false
+        expect(
+            matchPathShape(
+                "d.asdasdasd.asdad/wow.asdasd.asdas/nested/test/asdasdkjasdlkajsdalkdjakskllka/here/wow.asdasd.asdasdasd.asdad",
+                shape.split("/") as any,
+            )
+        ).is.false
+        expect(
+            matchPathShape(
+                "d.asdasdasd.asdad/test/wow.asdasd.asdas/nested/test/asdasdkjasdlkajsdalkdjakskllka/here/wow.asdasd.asdasdasd.asdad",
+                shape.split("/") as any,
+            )
+        ).is.false
+        expect(
+            matchPathShape(
+                "testu/d.asdasdasd.asdad/test/wow.asdasd.asdas/nested/test/asdasdkjasdlkajsdalkdjakskllka/here/wow.asdasd.asdasdasd.asdad",
+                shape.split("/") as any,
+            )
+        ).is.false
+        expect(
+            matchPathShape(
+                "test/test/no.sh",
+                shape.split("/") as any,
+            )
+        ).is.true
+        expect(
+            matchPathShape(
+                "test/lol/no.sh",
+                shape.split("/") as any,
+            )
+        ).is.true
+        expect(
+            matchPathShape(
+                "test/i/no.sh",
+                shape.split("/") as any,
+            )
+        ).is.true
+        expect(
+            matchPathShape(
+                "test/sdfjsldkfj.sdfsfsdfs.dfsfsdfs.fsdfsfdsfdf.wefwefw/no.sh",
+                shape.split("/") as any,
+            )
+        ).is.true
+        expect(
+            matchPathShape(
+                "test/test/no.sh2",
+                shape.split("/") as any,
+            )
+        ).is.false
+        expect(
+            matchPathShape(
+                "testu/lol/no.sh",
+                shape.split("/") as any,
+            )
+        ).is.false
+        expect(
+            matchPathShape(
+                "test//no.sh",
+                shape.split("/") as any,
+            )
+        ).is.false
+        expect(
+            matchPathShape(
+                "test/sdfjsldkfj.sdfsfsdfs.dfsfsdf/s.fsdfsfdsfdf.wefwefw/no.sh",
+                shape.split("/") as any,
+            )
+        ).is.false
+    })
+
+    it("test 'test/*/no.sh' shape", async () => {
+        const shape = "test/*/no.sh"
+        expect(
+            matchPathShape(
+                "pachage.json",
+                shape.split("/") as any,
+            )
+        ).is.false
+        expect(
+            matchPathShape(
+                "test/pachage.json",
+                shape.split("/") as any,
+            )
+        ).is.false
+        expect(
+            matchPathShape(
+                "old/deep/nested/folder/here/pachage.json",
+                shape.split("/") as any,
+            )
+        ).is.false
+        expect(
+            matchPathShape(
+                "wow.asdasd.asdasdasd.asdad",
+                shape.split("/") as any,
+            )
+        ).is.false
+        expect(
+            matchPathShape(
+                "test/wow.asdasd.asdasdasd.asdad",
+                shape.split("/") as any,
+            )
+        ).is.false
+        expect(
+            matchPathShape(
+                "old/deep/nested/folder/here/wow.asdasd.asdasdasd.asdad",
+                shape.split("/") as any,
+            )
+        ).is.false
+        expect(
+            matchPathShape(
+                "d.asdasdasd.asdad/wow.asdasd.asdas/nested/asdasdkjasdlkajsdalkdjakskllka/here/wow.asdasd.asdasdasd.asdad",
+                shape.split("/") as any,
+            )
+        ).is.false
+        expect(
+            matchPathShape(
+                "d.asdasdasd.asdad/wow.asdasd.asdas/nested/asdasdkjasdlkajsdalkdjakskllka/here/wow.asdasd.asdasdasd.asdad",
+                shape.split("/") as any,
+            )
+        ).is.false
+        expect(
+            matchPathShape(
+                "d.asdasdasd.asdad/wow.asdasd.asdas/nested/test/asdasdkjasdlkajsdalkdjakskllka/here/wow.asdasd.asdasdasd.asdad",
+                shape.split("/") as any,
+            )
+        ).is.false
+        expect(
+            matchPathShape(
+                "d.asdasdasd.asdad/test/wow.asdasd.asdas/nested/test/asdasdkjasdlkajsdalkdjakskllka/here/wow.asdasd.asdasdasd.asdad",
+                shape.split("/") as any,
+            )
+        ).is.false
+        expect(
+            matchPathShape(
+                "testu/d.asdasdasd.asdad/test/wow.asdasd.asdas/nested/test/asdasdkjasdlkajsdalkdjakskllka/here/wow.asdasd.asdasdasd.asdad",
+                shape.split("/") as any,
+            )
+        ).is.false
+        expect(
+            matchPathShape(
+                "test/test/no.sh",
+                shape.split("/") as any,
+            )
+        ).is.true
+        expect(
+            matchPathShape(
+                "test/lol/no.sh",
+                shape.split("/") as any,
+            )
+        ).is.true
+        expect(
+            matchPathShape(
+                "test/i/no.sh",
+                shape.split("/") as any,
+            )
+        ).is.true
+        expect(
+            matchPathShape(
+                "test/sdfjsldkfj.sdfsfsdfs.dfsfsdfs.fsdfsfdsfdf.wefwefw/no.sh",
+                shape.split("/") as any,
+            )
+        ).is.true
+        expect(
+            matchPathShape(
+                "test/test/no.sh2",
+                shape.split("/") as any,
+            )
+        ).is.false
+        expect(
+            matchPathShape(
+                "testu/lol/no.sh",
+                shape.split("/") as any,
+            )
+        ).is.false
+        expect(
+            matchPathShape(
+                "testu/lol/lol/no.sh",
+                shape.split("/") as any,
+            )
+        ).is.false
+        expect(
+            matchPathShape(
+                "testu/t/e//s/t/no.sh",
+                shape.split("/") as any,
+            )
+        ).is.false
+        expect(
+            matchPathShape(
+                "test//no.sh",
+                shape.split("/") as any,
+            )
+        ).is.false
+        expect(
+            matchPathShape(
+                "test/sdfjsldkfj.sdfsfsdfs.dfsfsdf/s.fsdfsfdsfdf.wefwefw/no.sh",
+                shape.split("/") as any,
+            )
+        ).is.false
+    })
+
+    it("test 'test/**/no.sh' shape", async () => {
+        const shape = "test/**/no.sh"
+        expect(matchPathShape(
+            "pachage.json",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "test/pachage.json",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "old/deep/nested/folder/here/pachage.json",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "wow.asdasd.asdasdasd.asdad",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "test/wow.asdasd.asdasdasd.asdad",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "old/deep/nested/folder/here/wow.asdasd.asdasdasd.asdad",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "d.asdasdasd.asdad/wow.asdasd.asdas/nested/asdasdkjasdlkajsdalkdjakskllka/here/wow.asdasd.asdasdasd.asdad",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "d.asdasdasd.asdad/wow.asdasd.asdas/nested/asdasdkjasdlkajsdalkdjakskllka/here/wow.asdasd.asdasdasd.asdad",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "d.asdasdasd.asdad/wow.asdasd.asdas/nested/test/asdasdkjasdlkajsdalkdjakskllka/here/wow.asdasd.asdasdasd.asdad",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "d.asdasdasd.asdad/test/wow.asdasd.asdas/nested/test/asdasdkjasdlkajsdalkdjakskllka/here/wow.asdasd.asdasdasd.asdad",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "testu/d.asdasdasd.asdad/test/wow.asdasd.asdas/nested/test/asdasdkjasdlkajsdalkdjakskllka/here/wow.asdasd.asdasdasd.asdad",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "test/test/no.sh",
+            shape.split("/") as any,
+        )).is.true
+        expect(matchPathShape(
+            "test/lol/no.sh",
+            shape.split("/") as any,
+        )).is.true
+        expect(matchPathShape(
+            "test/i/no.sh",
+            shape.split("/") as any,
+        )).is.true
+        expect(matchPathShape(
+            "test/sdfjsldkfj.sdfsfsdfs.dfsfsdfs.fsdfsfdsfdf.wefwefw/no.sh",
+            shape.split("/") as any,
+        )).is.true
+        expect(matchPathShape(
+            "test/test/no.sh2",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "testu/lol/no.sh",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "test/lol/lol/no.sh",
+            shape.split("/") as any,
+        )).is.true
+        expect(matchPathShape(
+            "test/t/e//s/t/no.sh",
+            shape.split("/") as any,
+        )).is.true
+        expect(matchPathShape(
+            "test//no.sh",
+            shape.split("/") as any,
+        )).is.true
+        expect(matchPathShape(
+            "test/sdfjsldkfj.sdfsfsdfs.dfsfsdf/s.fsdfsfdsfdf.wefwefw/no.sh",
+            shape.split("/") as any,
+        )).is.true
+    })
+
+    it("test '**/deep/**/here/**' shape", async () => {
+        const shape = "**/deep/**/here/**"
+        expect(matchPathShape(
+            "pachage.json",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "test/pachage.json",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "old/deep/nested/folder/here/pachage.json",
+            shape.split("/") as any,
+        )).is.true
+        expect(matchPathShape(
+            "wow.asdasd.asdasdasd.asdad",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "test/wow.asdasd.asdasdasd.asdad",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "old/deep/nested/folder/here/wow.asdasd.asdasdasd.asdad",
+            shape.split("/") as any,
+        )).is.true
+        expect(matchPathShape(
+            "d.asdasdasd.asdad/wow.asdasd.asdas/nested/asdasdkjasdlkajsdalkdjakskllka/here/wow.asdasd.asdasdasd.asdad",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "d.asdasdasd.asdad/wow.asdasd.asdas/nested/asdasdkjasdlkajsdalkdjakskllka/here/wow.asdasd.asdasdasd.asdad",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "d.asdasdasd.asdad/wow.asdasd.asdas/nested/test/asdasdkjasdlkajsdalkdjakskllka/here/wow.asdasd.asdasdasd.asdad",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "d.asdasdasd.asdad/test/wow.asdasd.asdas/nested/test/asdasdkjasdlkajsdalkdjakskllka/here/wow.asdasd.asdasdasd.asdad",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "testu/d.asdasdasd.asdad/test/wow.asdasd.asdas/nested/test/asdasdkjasdlkajsdalkdjakskllka/here/wow.asdasd.asdasdasd.asdad",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "test/test/no.sh",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "test/lol/no.sh",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "test/i/no.sh",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "test/sdfjsldkfj.sdfsfsdfs.dfsfsdfs.fsdfsfdsfdf.wefwefw/no.sh",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "test/test/no.sh2",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "testu/lol/no.sh",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "test/lol/lol/no.sh",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "test/t/e//s/t/no.sh",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "test//no.sh",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "test/sdfjsldkfj.sdfsfsdfs.dfsfsdf/s.fsdfsfdsfdf.wefwefw/no.sh",
+            shape.split("/") as any,
+        )).is.false
+    })
+
+    it("test '**/test/**/test/**' shape", async () => {
+        const shape = "**/test/**/test/**"
+        expect(matchPathShape(
+            "pachage.json",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "test/pachage.json",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "old/deep/nested/folder/here/pachage.json",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "wow.asdasd.asdasdasd.asdad",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "test/wow.asdasd.asdasdasd.asdad",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "old/deep/nested/folder/here/wow.asdasd.asdasdasd.asdad",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "d.asdasdasd.asdad/wow.asdasd.asdas/nested/asdasdkjasdlkajsdalkdjakskllka/here/wow.asdasd.asdasdasd.asdad",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "d.asdasdasd.asdad/wow.asdasd.asdas/nested/asdasdkjasdlkajsdalkdjakskllka/here/wow.asdasd.asdasdasd.asdad",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "d.asdasdasd.asdad/wow.asdasd.asdas/nested/test/asdasdkjasdlkajsdalkdjakskllka/here/wow.asdasd.asdasdasd.asdad",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "d.asdasdasd.asdad/test/wow.asdasd.asdas/nested/test/asdasdkjasdlkajsdalkdjakskllka/here/wow.asdasd.asdasdasd.asdad",
+            shape.split("/") as any,
+        )).is.true
+        expect(matchPathShape(
+            "testu/d.asdasdasd.asdad/test/wow.asdasd.asdas/nested/test/asdasdkjasdlkajsdalkdjakskllka/here/wow.asdasd.asdasdasd.asdad",
+            shape.split("/") as any,
+        )).is.true
+        expect(matchPathShape(
+            "test/test/no.sh",
+            shape.split("/") as any,
+        )).is.true
+        expect(matchPathShape(
+            "test/lol/no.sh",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "test/i/no.sh",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "test/sdfjsldkfj.sdfsfsdfs.dfsfsdfs.fsdfsfdsfdf.wefwefw/no.sh",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "test/test/no.sh2",
+            shape.split("/") as any,
+        )).is.true
+        expect(matchPathShape(
+            "testu/lol/no.sh",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "test/lol/lol/no.sh",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "test/t/e//s/t/no.sh",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "test//no.sh",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "test/sdfjsldkfj.sdfsfsdfs.dfsfsdf/s.fsdfsfdsfdf.wefwefw/no.sh",
+            shape.split("/") as any,
+        )).is.false
+    })
+
+    it("test '**/deep/**/folder/**' shape", async () => {
+        const shape = "**/deep/**/folder/**"
+        expect(matchPathShape(
+            "pachage.json",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "test/pachage.json",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "old/deep/nested/folder/here/pachage.json",
+            shape.split("/") as any,
+        )).is.true
+        expect(matchPathShape(
+            "wow.asdasd.asdasdasd.asdad",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "test/wow.asdasd.asdasdasd.asdad",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "old/deep/nested/folder/here/wow.asdasd.asdasdasd.asdad",
+            shape.split("/") as any,
+        )).is.true
+        expect(matchPathShape(
+            "d.asdasdasd.asdad/wow.asdasd.asdas/nested/asdasdkjasdlkajsdalkdjakskllka/here/wow.asdasd.asdasdasd.asdad",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "d.asdasdasd.asdad/wow.asdasd.asdas/nested/asdasdkjasdlkajsdalkdjakskllka/here/wow.asdasd.asdasdasd.asdad",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "d.asdasdasd.asdad/wow.asdasd.asdas/nested/test/asdasdkjasdlkajsdalkdjakskllka/here/wow.asdasd.asdasdasd.asdad",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "d.asdasdasd.asdad/test/wow.asdasd.asdas/nested/test/asdasdkjasdlkajsdalkdjakskllka/here/wow.asdasd.asdasdasd.asdad",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "testu/d.asdasdasd.asdad/test/wow.asdasd.asdas/nested/test/asdasdkjasdlkajsdalkdjakskllka/here/wow.asdasd.asdasdasd.asdad",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "test/test/no.sh",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "test/lol/no.sh",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "test/i/no.sh",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "test/sdfjsldkfj.sdfsfsdfs.dfsfsdfs.fsdfsfdsfdf.wefwefw/no.sh",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "test/test/no.sh2",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "testu/lol/no.sh",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "test/lol/lol/no.sh",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "test/t/e//s/t/no.sh",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "test//no.sh",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "test/sdfjsldkfj.sdfsfsdfs.dfsfsdf/s.fsdfsfdsfdf.wefwefw/no.sh",
+            shape.split("/") as any,
+        )).is.false
+    })
+
+    it("test '*/*/*/*/*' shape", async () => {
+        const shape = "*/*/*/*/*"
+        expect(matchPathShape(
+            "pachage.json",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "test/pachage.json",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "old/deep/nested/folder/here/pachage.json",
+            shape.split("/") as any,
+        )).is.true
+        expect(matchPathShape(
+            "wow.asdasd.asdasdasd.asdad",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "test/wow.asdasd.asdasdasd.asdad",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "old/deep/nested/folder/here/wow.asdasd.asdasdasd.asdad",
+            shape.split("/") as any,
+        )).is.true
+        expect(matchPathShape(
+            "d.asdasdasd.asdad/wow.asdasd.asdas/nested/asdasdkjasdlkajsdalkdjakskllka/here/wow.asdasd.asdasdasd.asdad",
+            shape.split("/") as any,
+        )).is.true
+        expect(matchPathShape(
+            "d.asdasdasd.asdad/wow.asdasd.asdas/nested/asdasdkjasdlkajsdalkdjakskllka/here/wow.asdasd.asdasdasd.asdad",
+            shape.split("/") as any,
+        )).is.true
+        expect(matchPathShape(
+            "d.asdasdasd.asdad/wow.asdasd.asdas/nested/test/asdasdkjasdlkajsdalkdjakskllka/here/wow.asdasd.asdasdasd.asdad",
+            shape.split("/") as any,
+        )).is.true
+        expect(matchPathShape(
+            "d.asdasdasd.asdad/test/wow.asdasd.asdas/nested/test/asdasdkjasdlkajsdalkdjakskllka/here/wow.asdasd.asdasdasd.asdad",
+            shape.split("/") as any,
+        )).is.true
+        expect(matchPathShape(
+            "testu/d.asdasdasd.asdad/test/wow.asdasd.asdas/nested/test/asdasdkjasdlkajsdalkdjakskllka/here/wow.asdasd.asdasdasd.asdad",
+            shape.split("/") as any,
+        )).is.true
+        expect(matchPathShape(
+            "test/test/no.sh",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "test/lol/no.sh",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "test/i/no.sh",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "test/sdfjsldkfj.sdfsfsdfs.dfsfsdfs.fsdfsfdsfdf.wefwefw/no.sh",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "test/test/no.sh2",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "testu/lol/no.sh",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "test/lol/lol/no.sh",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "test/t/e//s/t/no.sh",
+            shape.split("/") as any,
+        )).is.true
+        expect(matchPathShape(
+            "test//no.sh",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "test/sdfjsldkfj.sdfsfsdfs.dfsfsdf/s.fsdfsfdsfdf.wefwefw/no.sh",
+            shape.split("/") as any,
+        )).is.false
+    })
+
+    it("test '*/*/*/**/*/*/*' shape", async () => {
+        const shape = "*/*/*/**/*/*/*"
+        expect(matchPathShape(
+            "pachage.json",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "test/pachage.json",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "old/deep/nested/folder/here/pachage.json",
+            shape.split("/") as any,
+        )).is.true
+        expect(matchPathShape(
+            "old/deep/nested/folder/pachage.json",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "wow.asdasd.asdasdasd.asdad",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "test/wow.asdasd.asdasdasd.asdad",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "old/deep/nested/folder/here/wow.asdasd.asdasdasd.asdad",
+            shape.split("/") as any,
+        )).is.true
+        expect(matchPathShape(
+            "d.asdasdasd.asdad/wow.asdasd.asdas/nested/asdasdkjasdlkajsdalkdjakskllka/here/wow.asdasd.asdasdasd.asdad",
+            shape.split("/") as any,
+        )).is.true
+        expect(matchPathShape(
+            "d.asdasdasd.asdad/wow.asdasd.asdas/nested/asdasdkjasdlkajsdalkdjakskllka/here/wow.asdasd.asdasdasd.asdad",
+            shape.split("/") as any,
+        )).is.true
+        expect(matchPathShape(
+            "d.asdasdasd.asdad/wow.asdasd.asdas/nested/test/asdasdkjasdlkajsdalkdjakskllka/here/wow.asdasd.asdasdasd.asdad",
+            shape.split("/") as any,
+        )).is.true
+        expect(matchPathShape(
+            "d.asdasdasd.asdad/test/wow.asdasd.asdas/nested/test/asdasdkjasdlkajsdalkdjakskllka/here/wow.asdasd.asdasdasd.asdad",
+            shape.split("/") as any,
+        )).is.true
+        expect(matchPathShape(
+            "testu/d.asdasdasd.asdad/test/wow.asdasd.asdas/nested/test/asdasdkjasdlkajsdalkdjakskllka/here/wow.asdasd.asdasdasd.asdad",
+            shape.split("/") as any,
+        )).is.true
+        expect(matchPathShape(
+            "test/test/no.sh",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "test/lol/no.sh",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "test/i/no.sh",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "test/sdfjsldkfj.sdfsfsdfs.dfsfsdfs.fsdfsfdsfdf.wefwefw/no.sh",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "test/test/no.sh2",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "testu/lol/no.sh",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "test/lol/lol/no.sh",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "test/t/e//s/t/no.sh",
+            shape.split("/") as any,
+        )).is.true
+        expect(matchPathShape(
+            "test//no.sh",
+            shape.split("/") as any,
+        )).is.false
+        expect(matchPathShape(
+            "test/sdfjsldkfj.sdfsfsdfs.dfsfsdf/s.fsdfsfdsfdf.wefwefw/no.sh",
+            shape.split("/") as any,
+        )).is.false
+    })
+})
 
 describe('Test pathsfilter base functions', () => {
     it("simple test", async () => {

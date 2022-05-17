@@ -1,5 +1,4 @@
-import { promises as fs } from "fs"
-import * as path from "path"
+import { join } from "path"
 
 export let cwd: string
 if (
@@ -18,178 +17,64 @@ if (
     cwd = "/"
 }
 
-export function formatAbsolutePath(
-    filePath: string,
-    cwd: string = process.cwd()
-): string {
-    filePath = filePath.split("\\").join("/")
-    if (!filePath.startsWith("/")) {
-        filePath = cwd + "/" + filePath
-    }
-    return "/" + formatPath2(filePath)
-}
-
-export function formatPath2(filePath: string): string {
-    filePath = filePath.split("\\").join("/")
-    while (
-        filePath.startsWith("/") ||
-        filePath.startsWith(" ")
-    ) {
-        filePath = filePath.substring(1)
-    }
-    while (
-        filePath.endsWith("/") ||
-        filePath.endsWith(" ")
-    ) {
-        filePath = filePath.slice(0, -1)
-    }
-    return path.join(...filePath.split("/")).split("\\").join("/")
-}
-
-export interface PathStat {
-    name: string,
-    relativePath: string,
-    rootPath: string,
-    isFile: boolean,
-    isDir: boolean,
-}
-
-export interface RecursivePathStatChildren {
-    [name: string]: RecursivePathStat
-}
-
-export interface RecursivePathStat extends PathStat {
-    children: RecursivePathStatChildren
-    parent: RecursivePathStat | undefined
-}
-
-export interface ExtendedDirScanOptions {
-    depth?: number
-    cwd?: string
-    pathSelector?: PathSelector,
-    matchByDefault?: boolean
-    current?: RecursivePathStat,
-    parent?: RecursivePathStat
-}
-
-export interface ExtendedDirScanSettings {
-    depth: number
-    cwd: string
-    pathSelector: PathSelector | undefined,
-    matchByDefault: boolean
-    current: RecursivePathStat | undefined,
-    parent: RecursivePathStat | undefined
-}
-
-export const defaultExtendedDirScanSettings: ExtendedDirScanSettings = {
-    depth: 5,
-    cwd: process.cwd(),
-    pathSelector: undefined,
-    matchByDefault: false,
-    current: undefined,
-    parent: undefined
-}
-
-export async function extendedDirScan(
-    path: string,
-    options?: ExtendedDirScanOptions
-): Promise<RecursivePathStat> {
-    const settings: ExtendedDirScanSettings = {
-        ...defaultExtendedDirScanSettings,
-        ...options,
-    }
-    path = formatPath2(path)
-    let current: RecursivePathStat
-    if (!settings.current) {
-        const stat = await fs.stat(path)
-        current = {
-            name: path.split("/").pop() as string,
-            rootPath: formatAbsolutePath(path, settings.cwd),
-            relativePath: path,
-            isFile: stat.isFile(),
-            isDir: stat.isDirectory(),
-            children: {},
-            parent: settings.parent
-        }
-    } else {
-        current = settings.current
-    }
-    if (settings.parent) {
-        settings.parent.children[current.name] = current
-    }
-    if (current.isDir && settings.depth > 0) {
-        const files = await fs.readdir(
-            path,
-            {
-                encoding: "utf-8",
-                withFileTypes: true,
-            }
-        )
-        await Promise.all(files.map(
-            async (file) => {
-                const childPath = path + "/" + file.name
-                if (settings.pathSelector) {
-                    if (
-                        !matchPathSelector(
-                            childPath,
-                            settings.pathSelector,
-                            settings.matchByDefault
-                        )
-                    ) {
-                        return
-                    }
-                }
-                const child: RecursivePathStat = {
-                    name: file.name,
-                    rootPath: formatAbsolutePath(childPath, settings.cwd),
-                    relativePath: childPath,
-                    isFile: file.isFile(),
-                    isDir: file.isDirectory(),
-                    children: {},
-                    parent: settings.current,
-                }
-                await extendedDirScan(
-                    childPath,
-                    {
-                        ...settings,
-                        depth: settings.depth - 1,
-                        current: child,
-                        parent: current
-                    }
-                )
-            }
-        ))
-    }
-    return current
-}
-
-export function parseRecursiveFilelist(
-    recursivePathStat: RecursivePathStat,
-): string[] {
-    const result: string[] = []
-    if (recursivePathStat.isFile) {
-        result.push(recursivePathStat.relativePath)
-    } else if (recursivePathStat.isDir) {
-        Object.values(recursivePathStat.children).forEach(
-            (v) => parseRecursiveFilelist(v).forEach(
-                (v) => result.push(v)
-            )
-        )
-    }
-    return result
-}
-
-export function parseAbsoluteRecursiveFilelist(
-    recursivePathStat: RecursivePathStat,
-    cwd: string = process.cwd()
-): string[] {
-    return parseRecursiveFilelist(recursivePathStat).map(
-        (v) => formatAbsolutePath(
-            v,
-            cwd
-        )
+export function toLinuxPath(path: string): string {
+    path = join(
+        ...path.split("\\")
+            .filter((v) => v.length != 0)
     )
+    if (path[0] != "/" && path[1] == ":" && path[2] == "/") {
+        path = "/" + path
+    }
+    return path
+}
 
+export const forbiddenWindowsChars = "<>:\"|?*".split("")
+
+export function toWindowsPath(
+    path: string,
+    forbiddenCharReplacement: string | null = "?"
+): string {
+    if (forbiddenCharReplacement == null) {
+        forbiddenWindowsChars.forEach(
+            (v) => {
+                if (path.includes(v)) {
+                    throw new Error("Forbidden char in windows path: " + path + " char: '" + v + "'")
+                }
+            }
+        )
+    } else {
+        forbiddenWindowsChars.forEach(
+            (v) => {
+                path = path.split(v).join(forbiddenCharReplacement)
+            }
+        )
+    }
+
+    path = path.split("/")
+        .map((v) => {
+            while (v.endsWith(".") || v.endsWith(" ")) {
+                v = v.slice(0, -1)
+            }
+            return v
+        })
+        .filter((v) => v.length != 0)
+        .join("\\")
+
+    return path
+}
+
+export function absolutPath(
+    path: string,
+    cwd: string = toLinuxPath(process.cwd()),
+): string {
+    path = toLinuxPath(path)
+    if (!path.startsWith("/")) {
+        path = "/" + join(
+            ...cwd.split("/"),
+            ...path.split("/")
+        )
+    }
+    return path
 }
 
 // export type PathPattern that is a string array
@@ -288,6 +173,9 @@ export function parsePathSelector(
             while (v.startsWith(" ")) {
                 v = v.substring(1)
             }
+            while (v.endsWith(" ")) {
+                v = v.slice(0, -1)
+            }
             return v
         })
         .filter((v) => v.length != 0)
@@ -306,9 +194,7 @@ export function matchPathShape(
     path: string,
     pathShape: PathShape,
 ): boolean {
-    const pathParts = formatPath2(path)
-        .split("/")
-        .filter((v) => v.length > 0)
+    const pathParts = toLinuxPath(path).split("/")
 
     if (pathParts.length == 0 || pathShape.length == 0) {
         return false
@@ -319,6 +205,7 @@ export function matchPathShape(
 
     while (pathIndex < pathParts.length && patternIndex < pathShape.length) {
         while (pathShape[patternIndex] == "*") {
+
             pathIndex++
             patternIndex++
             if (
@@ -334,7 +221,7 @@ export function matchPathShape(
             }
         }
         if (pathShape[patternIndex] == "**") {
-            if (pathShape.length == 0) {
+            if (patternIndex + 1 >= pathShape.length) {
                 return true
             }
             const newPattern: PathShape = [
@@ -355,6 +242,7 @@ export function matchPathShape(
                     return true
                 }
             }
+            debugValue = path
             return false
         } else if (pathShape[patternIndex] != pathParts[pathIndex]) {
             return false
@@ -364,6 +252,8 @@ export function matchPathShape(
     }
     return true
 }
+
+let debugValue = "asd/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/a/asdasödasdka/a/a/a/äölsdaösdla/test.asd"
 
 export function matchPathSelector(
     path: string,
