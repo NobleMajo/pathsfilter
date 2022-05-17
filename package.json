@@ -1,7 +1,7 @@
 {
   "name": "pathsfilter",
   "description": "A library to filter paths like a .gitignore, .dockerignore or .npmignore file.",
-  "version": "1.2.2",
+  "version": "1.2.4",
   "main": "dist/index.js",
   "author": "majo418",
   "license": "MIT",
