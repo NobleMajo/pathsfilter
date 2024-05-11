@@ -1,4 +1,4 @@
-# pathsfilter
+# pathsfilter (depricated)
 
 ![CI/CD](https://github.com/majo418/pathsfilter/workflows/Publish/badge.svg)
 ![MIT](https://img.shields.io/badge/license-MIT-blue.svg)
