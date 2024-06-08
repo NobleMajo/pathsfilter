@@ -77,13 +77,6 @@ export function absolutPath(
     return path
 }
 
-// export type PathPattern that is a string array
-// Example raw path patterns '**/*.ts', '*', '!**/node_modules/**', '!.test', 'README.md', '*/*/*/test.ts' and '**/test/**/*.test.sh'
-// A PathPattern is a tuple of one or more strings
-// The string parts that represent the path parts splitted by the unix path separator ("/") 
-// A pathscript is a list of PathPatterns that can be used to check if a path matches a path script
-// A "*" represents any path in the same folter
-// A "**" represents any path in nested any folder
 export type PathShape = [string, ...string[]]
 export type SelectPathShape = [boolean, PathShape]
 export type PathSelector = SelectPathShape[]
@@ -273,3 +266,19 @@ export function matchPathSelector(
     return match
 }
 
+export function normalizeAndMatchPath(
+    path: string,
+    pathSelector: PathSelector,
+    matchByDefault: boolean = false,
+    os: "win32" | "linux" = process.platform
+): boolean {
+    let normalizedPath: string
+
+    if (os === "win32") {
+        normalizedPath = toWindowsPath(path)
+    } else {
+        normalizedPath = toLinuxPath(path)
+    }
+
+    return matchPathSelector(normalizedPath, pathSelector, matchByDefault)
+}
